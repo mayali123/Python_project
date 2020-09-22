@@ -3,11 +3,18 @@
 print("hello world", end='')  # print("",end='\n') 默认换行 可以用, end=''  使其不换行
 print("你好世界 你好python")
 
+# python 不可以用 -- ++   可以用 += -= /= *=
+i = 3
+i *= 3
+print("i=%d" % i)
+
 # 这是单行注释
 '''
  这是多行注释 
 '''
-
+""""
+ 这个也是多行注释
+"""
 #  Python基本元素：数字(int,bool,float)、字符串和变量  没有 c 语言的double 其他基本上一样
 
 # python的运算符和c语言 基本一样
