@@ -80,6 +80,7 @@ print(st)
 # [start:end:step] 从 start 提取到 end - 1，每 step 个字符提取一个 如果step 为-1 则反向提取
 st3 = 'hello'
 print("%s" % st3[::-1])
+print(st3[0:4])
 
 # 可以用 len() 看字符串的长度 和 c语言的strlen()一样
 print(len(st3))
@@ -90,3 +91,6 @@ print(st2.split())
 # 用join()合并
 ls = ['12', '3', '2']
 print(','.join(ls))
+
+# 在输出的字符串前加一个r 可以直接输出
+print(r"str\n")
