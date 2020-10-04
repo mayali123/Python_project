@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # @Time :  9:18
-# @Author :麻亚利
+# @Author :mayali123
 # @File : 尝试爬猫眼.py
 # @Software : PyCharm
 
@@ -10,8 +10,10 @@ import  json
 
 def main():
     url = 'http://piaofang.maoyan.com/dashboard-ajax/movie?orderType=0&uuid=174f0a73224c8-0556c9a340f0bb-7e647b6e-14f6b5-174f0a73224c8&riskLevel=71&optimusCode=10&_token=eJyNT8sKgkAU%2FZe7HkZHU2cGXAhBGLRIrI24GB%2BphI7oIEX0713BFu2CC%2BfB4XDuC6a4AmkTWOoJJDBqUx8ImBkk820WBJ7DbO4JAuWvJxxOoJiue5BZIBjxuZOvRoI6Y57vEh6InGzURers8NZMjBFojRmlZY2d0jc1NLRX%2BqkGWureqtTcFlpNldXrpatxzj9hwOo%2BxWrE%2B4ZqQ%2FPVJ%2FwR%2B%2BauGZDVx0d6aeIoOjRRcg5DeH8APJNNiw%3D%3D'
-    save_path= '猫眼实时数据.xls'
-    save(get_data(url),save_path)
+    save_path = '猫眼实时数据.xls'
+    ls = get_data(url)
+    save(ls, save_path)
+    # show(ls)
 
 def askUrl(url):
     head = {
@@ -56,5 +58,15 @@ def save(ls, save_path):
             sheet1.write(i+1, j, ls[i][j])
     workbook.save(save_path)
     print("保存成功！！")
+
+def show(ls):
+    for i in range(len(Cmovie_info)):
+        print("%s  " % Cmovie_info[i], end=' ')
+    print('\n', end='')
+    for i in range(len(ls)):
+        for j in range(len(ls[0])):
+            print("%s  " % ls[i][j], end=' ')
+        print('\n', end='')
+
 if __name__ == "__main__":
     main()
