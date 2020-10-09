@@ -1,7 +1,6 @@
 # 93页3.2
 time = 365
 capacity = 1
-b = 0
 for i in range(1, time+1):
     if i % 7 not in [1, 2, 3]:
         capacity *= 1.01
