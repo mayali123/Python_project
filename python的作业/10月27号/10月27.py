@@ -52,7 +52,6 @@ no_change_num = 0
 change_num = 0
 for j in range(1000000):
     ls = [0, 1, 0]
-    zero = []
     random.shuffle(ls)
     # print(ls)
     guess_num = random.randint(0, 2)
