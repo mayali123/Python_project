@@ -80,7 +80,7 @@ class Read_FileWin(QMainWindow):
         self.actionUp = self.menuLook.addAction("放大 Ctrl+加号")
         self.actionDown = self.menuLook.addAction("缩小 Ctrl+减号")
         self.actionSearch = self.menuLook.addAction("查找")
-        self.actionReplace = self.menuLook.addAction("放大 Ctrl+加号")
+        self.actionReplace = self.menuLook.addAction("替换")
 
         #  添加 菜单栏
         self.setMenuBar(self.bar)
