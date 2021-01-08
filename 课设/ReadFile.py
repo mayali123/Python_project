@@ -6,12 +6,12 @@
 import sys
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QIcon, QColor, QFont, QPalette, QTextDocument
+from PyQt5.QtGui import QIcon, QColor, QFont, QPalette, QTextDocument, QTextCursor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLabel, QFontDialog, QColorDialog, QFileDialog, \
      QMessageBox
 import chardet
 from PyQt5 import QtCore, QtWidgets
-import txt
+import win
 
 class Read_FileWin(QMainWindow):
     def __init__(self,parent =None):
@@ -82,6 +82,10 @@ class Read_FileWin(QMainWindow):
         self.actionSearch = self.menuLook.addAction("查找")
         self.actionReplace = self.menuLook.addAction("替换")
 
+        # help
+        self.menuHelp = self.bar.addMenu("帮助")
+        self.actionAbout = self.menuHelp.addAction("关于记事本")
+
         #  添加 菜单栏
         self.setMenuBar(self.bar)
         # 状态栏
@@ -117,6 +121,7 @@ class Read_FileWin(QMainWindow):
 
     # 链接 槽 和 信号
     def connect(self):
+        self.actionNew.triggered.connect(self.New)
         # 退出 和 Quit 链接在一起
         self.actionQuit.triggered.connect(lambda:self.close())
         # 菜单栏的 打开 和 OpenFile 函数 链接在一起
@@ -144,6 +149,8 @@ class Read_FileWin(QMainWindow):
         # 替换
         self.actionReplace.triggered.connect(self.Replace)
 
+        # 关于
+        self.actionAbout.triggered.connect(lambda: QMessageBox.information(None, "关于记事本","版本：1.0\nmayali123保留所有权利"))
 
         # 信号 和 槽 链接 起来
         self.text.savemeg.connect(self.SaveFile)
@@ -172,8 +179,8 @@ class Read_FileWin(QMainWindow):
             self.text.clear()
             file = open(self.filename, "rb")
             # 解决 编码 问题
-            self.encode = chardet.detect(file.readline())["encoding"]
-            self.text_encode.setText("编码%s"% self.encode)
+            self.encode = chardet.detect(file.read())["encoding"]
+            self.text_encode.setText("编码%s" %self.encode)
             print(self.encode)
             file.close()
             # 打开文件
@@ -188,15 +195,24 @@ class Read_FileWin(QMainWindow):
                 self.text.append(i.replace("\n", ""))
             self.text_num.setText("字数%d" % num)
 
+    # 展示
+    def TextShow(self):
+        data = self.text.toPlainText()
+        self.text.clear()
+        self.text.setFont(self.font)
+        self.text.setTextColor(self.color)
+        self.text.setText(data)
+
     # 设置字体
     def SetFont(self):
         self.font, ok = QFontDialog.getFont(None)
-        self.ReadFile()
+        if ok:
+            self.TextShow()
 
     # 设置颜色
     def SetColor(self):
         self.color = QColorDialog.getColor(QColor(255, 0, 0), None)
-        self.ReadFile()
+        self.TextShow()
 
     # 当文本框有变化时
     def TextChanged(self):
@@ -204,34 +220,36 @@ class Read_FileWin(QMainWindow):
         self.text_IsSave.setText("未保存")
         data = self.text.toPlainText()
         num = self.WordNumber(data)
-        self.text_num.setText("数字%d" % num)
+        self.text_num.setText("字数%d" % num)
 
     # 保存文件
     def SaveFile(self):
         self.IsSave = True
+        ok = True
         # 如果 文件名为 None
         if self.filename == None:
-            self.filename, _ = QFileDialog.getSaveFileName(None, "新建", "./新建文本文件", "(*.txt)")
+            self.filename, ok = QFileDialog.getSaveFileName(None, "新建", "./新建文本文件", "(*.txt)")
 
         # 如果是 ascii 的话 将其 变成 utf-8 就可以 保存中文了
         if self.encode == "ascii":
             self.encode = "utf-8"
+        if ok:
+            file = open(self.filename, "w", encoding=self.encode)
+            # 得到 文本编辑框的文字
+            data = self.text.toPlainText()
+            file.write(data)
+            file.close()
 
-        file = open(self.filename, "w", encoding=self.encode)
-        # 得到 文本编辑框的文字
-        data = self.text.toPlainText()
-        file.write(data)
-        file.close()
-
-        # 显示 已保存
-        self.text_IsSave.setText("已保存")
-        # 重新设置 一下 文件路径
-        self.lineEdit.setText(self.filename)
+            # 显示 已保存
+            self.text_IsSave.setText("已保存")
+            # 重新设置 一下 文件路径
+            self.lineEdit.setText(self.filename)
 
     # 另存为
     def SaveOtherFile(self):
         self.IsSave = True
-        self.OtherFileName,ok = QFileDialog.getSaveFileName(None, "新建", "./新建文本文件", "(*.txt)")
+        self.text_IsSave.setText("已保存")
+        self.OtherFileName,ok = QFileDialog.getSaveFileName(None, "另存为", "./新建文本文件", "(*.txt)")
         if ok:
             # 如果是 ascii 的话 将其 变成 utf-8 就可以 保存中文了
             if self.encode == "ascii":
@@ -241,18 +259,24 @@ class Read_FileWin(QMainWindow):
             file.write(data)
             file.close()
             # 如果之前的 文件名为 None
-            # if self.filename == None:
-            #     self.filename = self.OtherFileName
-            #     self.lineEdit.setText(self.OtherFileName)
-
-    # 发大 or 缩小
+            if self.filename == None:
+                self.filename = self.OtherFileName
+                self.lineEdit.setText(self.OtherFileName)
+    # 新建
+    def New(self):
+        self.IsSave = True
+        self.text.clear()
+        self.filename, ok = QFileDialog.getSaveFileName(None, "新建", "./新建文本文件", "(*.txt)")
+        if ok:
+            self.lineEdit.setText(self.filename)
+    # 放大 or 缩小
     def addDown(self,IsUpOrDown):
         # 如果是放大
         if IsUpOrDown:
             self.font.setPointSize(self.font.pointSize() + 5) # 将字变大
         else:
             self.font.setPointSize(self.font.pointSize() - 5)  # 将字变小
-        self.ReadFile()  # 再重新显示文字
+        self.TextShow()  # 再重新显示文字
 
 
     # 这个函数的大概意思是过掉开始的空格，然后如果33(!)<=p[i]的ASC码值<=125(})
@@ -275,7 +299,7 @@ class Read_FileWin(QMainWindow):
         return count
 
     def Search(self):
-        sec = txt.Ui_MainWindow()
+        sec = win.Search()
         sec.show()
         # 链接 槽函数
         sec.sreachmsg.connect(self.SearchString)
@@ -283,17 +307,19 @@ class Read_FileWin(QMainWindow):
 
     # 查找 字符串 并 高亮
     def SearchString(self,st):
+        print(st)
         # 参考 https://blog.csdn.net/Phr_Nick/article/details/51533453?spm=1001.2101.3001.4242
-        if self.text.find(st, QTextDocument.FindBackward):
+        if self.text.find(st, QTextDocument.FindCaseSensitively):
             palette = self.text.palette()
-            palette.setColor(QPalette.Highlight, palette.color(QPalette.Active, QPalette.Highlight))
+            palette.setColor(QPalette.Highlight, QColor(255,0,0))
+            # palette.setColor(QPalette.Highlight, palette.color(QPalette.Active, QPalette.Highlight))
             self.text.setPalette(palette)
         else:
             QMessageBox.information(None,"查找", "找不到\"{}\"".format(st))
 
     # 替换
     def Replace(self):
-        sec = txt.Replace()
+        sec = win.Replace()
         sec.show()
         sec.replacemsg.connect(self.ReplaceShow)
         sec.exec_()
